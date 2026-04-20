@@ -10,6 +10,10 @@ const isCheckError = (error: unknown): boolean => {
   return error instanceof Error && error.message.includes('CHECK constraint failed');
 };
 
+const isUniqueConstraintError = (error: unknown): boolean => {
+  return error instanceof Error && error.message.includes('UNIQUE constraint failed');
+};
+
 const getChangedRows = (result: D1Result<unknown>): number => {
   const maybeMeta = result.meta as { changes?: number } | undefined;
   return maybeMeta?.changes ?? 0;
@@ -61,9 +65,7 @@ export const createOrReplacePresupuesto = async (
     await db
       .prepare(
         `INSERT INTO presupuestos (periodo_id, categoria_id, monto_limite)
-         VALUES (?, ?, ?)
-         ON CONFLICT(periodo_id, categoria_id)
-         DO UPDATE SET monto_limite = excluded.monto_limite`,
+         VALUES (?, ?, ?)`,
       )
       .bind(input.periodo_id, input.categoria_id, input.monto_limite)
       .run();
@@ -78,7 +80,7 @@ export const createOrReplacePresupuesto = async (
       .first<Presupuesto>();
 
     if (!presupuesto) {
-      throw new AppError('No se pudo crear o reemplazar el presupuesto.', 500);
+      throw new AppError('No se pudo crear el presupuesto.', 500);
     }
 
     return presupuesto;
@@ -89,6 +91,10 @@ export const createOrReplacePresupuesto = async (
 
     if (isCheckError(error)) {
       throw new AppError('El monto limite no cumple las restricciones.', 400);
+    }
+
+    if (isUniqueConstraintError(error)) {
+      throw new AppError('Ya existe un presupuesto para ese periodo y categoria.', 409);
     }
 
     throw error;

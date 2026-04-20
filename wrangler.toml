@@ -2,26 +2,26 @@ name = "finance-api"
 main = "src/index.ts"
 compatibility_date = "2026-04-19"
 
+# ── Producción ──────────────────────────────────────────────────
 [[d1_databases]]
 binding = "DB"
 database_name = "misfinanzas-db"
-database_id = "REPLACE_WITH_PROD_DB_ID"
-preview_database_id = "REPLACE_WITH_PROD_DB_ID"
+database_id = "945048f6-fccd-4f6a-b15f-f227ffddeeda"
 
+# ── Preview (deploy de prueba en Cloudflare) ─────────────────────
 [env.preview]
 name = "finance-api-preview"
 
 [[env.preview.d1_databases]]
 binding = "DB"
 database_name = "misfinanzas-db-preview"
-database_id = "REPLACE_WITH_PREVIEW_DB_ID"
-preview_database_id = "REPLACE_WITH_PREVIEW_DB_ID"
+database_id = "770a4e65-91d1-4785-9764-a6ad68941417"
 
+# ── Local (tu máquina) ───────────────────────────────────────────
 [env.local]
 name = "finance-api-local"
 
 [[env.local.d1_databases]]
 binding = "DB"
 database_name = "misfinanzas-db-local"
-database_id = "REPLACE_WITH_LOCAL_DB_ID"
-preview_database_id = "REPLACE_WITH_LOCAL_DB_ID"
+database_id = "945048f6-fccd-4f6a-b15f-f227ffddeeda"
