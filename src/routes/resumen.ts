@@ -17,12 +17,12 @@ export const resumenRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }
 
 resumenRoutes.get('/:periodo_id', async (c) => {
   const periodoId = parsePositiveInt(c.req.param('periodo_id'), 'periodo_id');
-  const data = await getResumenPeriodo(c.env.DB, periodoId);
+  const data = await getResumenPeriodo(c.env.financeDB, periodoId);
   return c.json(data, 200);
 });
 
 resumenRoutes.get('/:periodo_id/comparativa', async (c) => {
   const periodoId = parsePositiveInt(c.req.param('periodo_id'), 'periodo_id');
-  const data = await getComparativaPeriodo(c.env.DB, periodoId);
+  const data = await getComparativaPeriodo(c.env.financeDB, periodoId);
   return c.json(data, 200);
 });

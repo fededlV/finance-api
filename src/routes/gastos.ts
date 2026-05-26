@@ -43,7 +43,7 @@ gastosRoutes.get('/', async (c) => {
   const periodoId = parseOptionalPositiveInt(c.req.query('periodo_id'), 'periodo_id');
   const categoriaId = parseOptionalPositiveInt(c.req.query('categoria_id'), 'categoria_id');
 
-  const data = await listGastos(c.env.DB, {
+  const data = await listGastos(c.env.financeDB, {
     periodo_id: periodoId,
     categoria_id: categoriaId,
     fecha_desde: c.req.query('fecha_desde') ?? undefined,
@@ -55,32 +55,32 @@ gastosRoutes.get('/', async (c) => {
 
 gastosRoutes.get('/:id', async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
-  const data = await getGastoById(c.env.DB, id);
+  const data = await getGastoById(c.env.financeDB, id);
   return c.json({ data }, 200);
 });
 
 gastosRoutes.post('/', validateBody(createGastoSchema), async (c) => {
   const body = c.get('validatedBody') as CreateGastoInput;
-  const data = await createGasto(c.env.DB, body);
+  const data = await createGasto(c.env.financeDB, body);
   return c.json({ data }, 201);
 });
 
 gastosRoutes.put('/:id', validateBody(putGastoSchema), async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
   const body = c.get('validatedBody') as PutGastoInput;
-  const data = await replaceGasto(c.env.DB, id, body);
+  const data = await replaceGasto(c.env.financeDB, id, body);
   return c.json({ data }, 200);
 });
 
 gastosRoutes.patch('/:id', validateBody(patchGastoSchema), async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
   const body = c.get('validatedBody') as PatchGastoInput;
-  const data = await patchGasto(c.env.DB, id, body);
+  const data = await patchGasto(c.env.financeDB, id, body);
   return c.json({ data }, 200);
 });
 
 gastosRoutes.delete('/:id', async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
-  await deleteGasto(c.env.DB, id);
+  await deleteGasto(c.env.financeDB, id);
   return c.body(null, 204);
 });

@@ -5,6 +5,6 @@ import type { AppVariables, Env } from '../types/env';
 export const categoriasRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
 categoriasRoutes.get('/', async (c) => {
-  const data = await listCategorias(c.env.DB);
+  const data = await listCategorias(c.env.financeDB);
   return c.json({ data }, 200);
 });

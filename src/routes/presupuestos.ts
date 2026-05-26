@@ -33,25 +33,25 @@ export const presupuestosRoutes = new Hono<{ Bindings: Env; Variables: AppVariab
 
 presupuestosRoutes.get('/', async (c) => {
   const periodoId = parseOptionalPositiveInt(c.req.query('periodo_id'), 'periodo_id');
-  const data = await listPresupuestos(c.env.DB, periodoId);
+  const data = await listPresupuestos(c.env.financeDB, periodoId);
   return c.json({ data }, 200);
 });
 
 presupuestosRoutes.post('/', validateBody(createPresupuestoSchema), async (c) => {
   const body = c.get('validatedBody') as CreatePresupuestoInput;
-  const data = await createOrReplacePresupuesto(c.env.DB, body);
+  const data = await createOrReplacePresupuesto(c.env.financeDB, body);
   return c.json({ data }, 201);
 });
 
 presupuestosRoutes.patch('/:id', validateBody(patchPresupuestoSchema), async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
   const body = c.get('validatedBody') as PatchPresupuestoInput;
-  const data = await patchPresupuesto(c.env.DB, id, body);
+  const data = await patchPresupuesto(c.env.financeDB, id, body);
   return c.json({ data }, 200);
 });
 
 presupuestosRoutes.delete('/:id', async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
-  await deletePresupuesto(c.env.DB, id);
+  await deletePresupuesto(c.env.financeDB, id);
   return c.body(null, 204);
 });

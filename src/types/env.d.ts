@@ -1,5 +1,5 @@
 export interface Env {
-  DB: D1Database;
+  financeDB: D1Database;
 }
 
 export interface AppVariables {

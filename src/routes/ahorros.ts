@@ -48,7 +48,7 @@ ahorrosRoutes.get('/', async (c) => {
   const periodoId = parseOptionalPositiveInt(c.req.query('periodo_id'), 'periodo_id');
   const moneda = parseMoneda(c.req.query('moneda'));
 
-  const data = await listAhorros(c.env.DB, {
+  const data = await listAhorros(c.env.financeDB, {
     periodo_id: periodoId,
     moneda,
   });
@@ -58,25 +58,25 @@ ahorrosRoutes.get('/', async (c) => {
 
 ahorrosRoutes.get('/:id', async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
-  const data = await getAhorroById(c.env.DB, id);
+  const data = await getAhorroById(c.env.financeDB, id);
   return c.json({ data }, 200);
 });
 
 ahorrosRoutes.post('/', validateBody(createAhorroSchema), async (c) => {
   const body = c.get('validatedBody') as CreateAhorroInput;
-  const data = await createAhorro(c.env.DB, body);
+  const data = await createAhorro(c.env.financeDB, body);
   return c.json({ data }, 201);
 });
 
 ahorrosRoutes.patch('/:id', validateBody(patchAhorroSchema), async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
   const body = c.get('validatedBody') as PatchAhorroInput;
-  const data = await patchAhorro(c.env.DB, id, body);
+  const data = await patchAhorro(c.env.financeDB, id, body);
   return c.json({ data }, 200);
 });
 
 ahorrosRoutes.delete('/:id', async (c) => {
   const id = parsePositiveInt(c.req.param('id'), 'id');
-  await deleteAhorro(c.env.DB, id);
+  await deleteAhorro(c.env.financeDB, id);
   return c.body(null, 204);
 });

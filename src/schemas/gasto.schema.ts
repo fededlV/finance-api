@@ -6,7 +6,7 @@ export const gastoBaseSchema = z.object({
   periodo_id: z.number().int().positive(),
   categoria_id: z.number().int().positive(),
   descripcion: z.string().trim().min(1).max(255),
-  monto: z.number().positive(),
+  monto: z.number().int().positive(),
   fecha: z.string().regex(fechaRegex, 'La fecha debe tener formato YYYY-MM-DD'),
   nota: z.string().trim().max(1000).nullable().optional(),
 });

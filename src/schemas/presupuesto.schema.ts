@@ -3,11 +3,11 @@ import { z } from 'zod';
 export const createPresupuestoSchema = z.object({
   periodo_id: z.number().int().positive(),
   categoria_id: z.number().int().positive(),
-  monto_limite: z.number().positive(),
+  monto_limite: z.number().int().positive(),
 });
 
 export const patchPresupuestoSchema = z.object({
-  monto_limite: z.number().positive(),
+  monto_limite: z.number().int().positive(),
 });
 
 export type CreatePresupuestoInput = z.infer<typeof createPresupuestoSchema>;
