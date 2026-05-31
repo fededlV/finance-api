@@ -1,3 +1,4 @@
+-- Migration number: 0000_init_schema.sql
 CREATE TABLE IF NOT EXISTS categorias (
   id        INTEGER PRIMARY KEY AUTOINCREMENT,
   nombre    TEXT    NOT NULL UNIQUE,
@@ -47,23 +48,11 @@ CREATE TABLE IF NOT EXISTS presupuestos (
   UNIQUE(periodo_id, categoria_id)
 );
 
-CREATE TABLE IF NOT EXISTS ingresos (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  periodo_id    INTEGER NOT NULL REFERENCES periodos(id) ON DELETE CASCADE,
-  descripcion   TEXT    NOT NULL,
-  monto         INTEGER NOT NULL CHECK(monto > 0),
-  fecha         TEXT    NOT NULL,
-  nota          TEXT    DEFAULT NULL,
-  creado_en     TEXT    NOT NULL DEFAULT (datetime('now')),
-  modificado_en TEXT    DEFAULT NULL
-);
-
 CREATE INDEX IF NOT EXISTS idx_gastos_periodo   ON gastos(periodo_id);
 CREATE INDEX IF NOT EXISTS idx_gastos_categoria ON gastos(categoria_id);
 CREATE INDEX IF NOT EXISTS idx_gastos_fecha     ON gastos(fecha);
 CREATE INDEX IF NOT EXISTS idx_ahorros_periodo  ON ahorros(periodo_id);
 CREATE INDEX IF NOT EXISTS idx_ahorros_moneda   ON ahorros(moneda);
-CREATE INDEX IF NOT EXISTS idx_ingresos_periodo ON ingresos(periodo_id);
 
 INSERT OR IGNORE INTO categorias (nombre, icono, color) VALUES
   ('Alimentación',     'cart',                  '#FF6B6B'),

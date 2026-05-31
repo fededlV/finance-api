@@ -59,8 +59,20 @@ export interface PresupuestoEstado {
   porcentaje_usado: number;
 }
 
+export interface Ingreso {
+  id: number;
+  periodo_id: number;
+  descripcion: string;
+  monto: number;
+  fecha: string;
+  nota: string | null;
+  creado_en: string;
+  modificado_en: string | null;
+}
+
 export interface ResumenPeriodo {
   periodo: Periodo;
+  total_ingresado: number;
   total_gastado: number;
   total_ahorrado_ars: number;
   total_ahorrado_usd: number;

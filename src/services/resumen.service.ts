@@ -73,12 +73,14 @@ export const getResumenPeriodo = async (db: D1Database, periodoId: number): Prom
   const periodo = await getPeriodById(db, periodoId);
 
   const [
+    ingresosTotalResult,
     gastosTotalResult,
     ahorroArsTotalResult,
     ahorroUsdTotalResult,
     gastosCategoriaResult,
     presupuestosEstadoResult,
   ] = await db.batch([
+    db.prepare('SELECT COALESCE(SUM(monto), 0) AS total FROM ingresos WHERE periodo_id = ?').bind(periodoId),
     db.prepare('SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE periodo_id = ?').bind(periodoId),
     db
       .prepare("SELECT COALESCE(SUM(monto), 0) AS total FROM ahorros WHERE periodo_id = ? AND moneda = 'ARS'")
@@ -98,8 +100,8 @@ export const getResumenPeriodo = async (db: D1Database, periodoId: number): Prom
     db
       .prepare(
         `SELECT p.categoria_id AS categoria_id,
-                p.monto_limite AS limite,
-                COALESCE(SUM(g.monto), 0) AS gastado
+                 p.monto_limite AS limite,
+                 COALESCE(SUM(g.monto), 0) AS gastado
          FROM presupuestos p
          LEFT JOIN gastos g ON g.categoria_id = p.categoria_id AND g.periodo_id = p.periodo_id
          WHERE p.periodo_id = ?
@@ -109,6 +111,8 @@ export const getResumenPeriodo = async (db: D1Database, periodoId: number): Prom
       .bind(periodoId),
   ]);
 
+  const totalIngresos =
+    toNumber(((ingresosTotalResult as D1Result<AggregateRow>).results[0] as AggregateRow | undefined)?.total) || 0;
   const totalGastado =
     toNumber(((gastosTotalResult as D1Result<AggregateRow>).results[0] as AggregateRow | undefined)?.total) || 0;
   const totalAhorradoArs =
@@ -146,12 +150,14 @@ export const getResumenPeriodo = async (db: D1Database, periodoId: number): Prom
     };
   });
 
-  const saldoDisponible = round2(periodo.dinero_inicial - totalGastado - totalAhorradoArs);
+  const totalIngresado = periodo.dinero_inicial + totalIngresos;
+  const saldoDisponible = round2(totalIngresado - totalGastado - totalAhorradoArs);
   const porcentajeAhorro =
-    periodo.dinero_inicial > 0 ? round2((totalAhorradoArs / periodo.dinero_inicial) * 100) : 0;
+    totalIngresado > 0 ? round2((totalAhorradoArs / totalIngresado) * 100) : 0;
 
   return {
     periodo,
+    total_ingresado: round2(totalIngresado),
     total_gastado: round2(totalGastado),
     total_ahorrado_ars: round2(totalAhorradoArs),
     total_ahorrado_usd: round2(totalAhorradoUsd),

@@ -4,6 +4,7 @@ import { errorHandler } from './middlewares/error.middleware';
 import { ahorrosRoutes } from './routes/ahorros';
 import { categoriasRoutes } from './routes/categorias';
 import { gastosRoutes } from './routes/gastos';
+import { ingresosRoutes } from './routes/ingresos';
 import { periodosRoutes } from './routes/periodos';
 import { presupuestosRoutes } from './routes/presupuestos';
 import { resumenRoutes } from './routes/resumen';
@@ -27,6 +28,7 @@ app.route('/categorias', categoriasRoutes);
 app.route('/periodos', periodosRoutes);
 app.route('/gastos', gastosRoutes);
 app.route('/ahorros', ahorrosRoutes);
+app.route('/ingresos', ingresosRoutes);
 app.route('/presupuestos', presupuestosRoutes);
 app.route('/resumen', resumenRoutes);
 
