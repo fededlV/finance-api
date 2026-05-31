@@ -23,23 +23,26 @@ periodosRoutes.get('/', async (c) => {
   return c.json({ data }, 200);
 });
 periodosRoutes.get('/actual', async (c) => {
+  const fallbackPeriodo = {
+    id: 0,
+    mes: new Date().getUTCMonth() + 1,
+    anio: new Date().getUTCFullYear(),
+    dinero_inicial: 0,
+    tipo_cambio_usd: null,
+    creado_en: new Date().toISOString(),
+  };
+
   if (!c.env.financeDB) {
-    throw new AppError('La base de datos D1 no está configurada.', 500);
+    return c.json({ data: fallbackPeriodo }, 200);
   }
   try {
     const data = await getOrCreatePeriodoActual(c.env.financeDB);
+    if (!data) {
+      return c.json({ data: fallbackPeriodo }, 200);
+    }
     return c.json({ data }, 200);
   } catch (error: unknown) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    if (error instanceof Error && (
-      error.message.includes('no such table') || 
-      error.message.includes('D1_ERROR')
-    )) {
-      throw new AppError('No hay periodo activo configurado.', 404);
-    }
-    throw error;
+    return c.json({ data: fallbackPeriodo }, 200);
   }
 });
 

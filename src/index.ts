@@ -12,7 +12,19 @@ import type { AppVariables, Env } from './types/env';
 
 const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
-app.use('*', cors({ origin: '*' }));
+app.use(
+  '*',
+  cors({
+    origin: (origin) => {
+      // Explicitly allow native Android bundle origins (e.g. android-app://com.financeapp) and web clients
+      if (!origin) return '*';
+      return origin;
+    },
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'ngrok-skip-browser-warning'],
+    credentials: true,
+  }),
+);
 
 app.get('/health', (c) => {
   return c.json(
