@@ -218,3 +218,33 @@ export const getComparativaPeriodo = async (
     ),
   };
 };
+
+export interface ExportData {
+  gastos: Array<{ fecha: string; descripcion: string; monto: number; nota: string | null }>;
+  ingresos: Array<{ fecha: string; descripcion: string; monto: number; nota: string | null }>;
+  ahorros: Array<{
+    fecha: string;
+    descripcion: string;
+    monto: number;
+    moneda: 'ARS' | 'USD';
+    origen: string | null;
+    nota: string | null;
+  }>;
+}
+
+export const getExportData = async (db: D1Database, periodoId: number): Promise<ExportData> => {
+  // Validate period exists
+  await getPeriodById(db, periodoId);
+
+  const [gastosResult, ingresosResult, ahorrosResult] = await db.batch([
+    db.prepare(`SELECT fecha, descripcion, monto, nota FROM gastos WHERE periodo_id = ? ORDER BY fecha ASC, id ASC`).bind(periodoId),
+    db.prepare(`SELECT fecha, descripcion, monto, nota FROM ingresos WHERE periodo_id = ? ORDER BY fecha ASC, id ASC`).bind(periodoId),
+    db.prepare(`SELECT fecha, descripcion, monto, moneda, origen, nota FROM ahorros WHERE periodo_id = ? ORDER BY fecha ASC, id ASC`).bind(periodoId),
+  ]);
+
+  return {
+    gastos: (gastosResult as D1Result<ExportData['gastos'][number]>).results,
+    ingresos: (ingresosResult as D1Result<ExportData['ingresos'][number]>).results,
+    ahorros: (ahorrosResult as D1Result<ExportData['ahorros'][number]>).results,
+  };
+};

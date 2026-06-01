@@ -8,6 +8,7 @@ import { ingresosRoutes } from './routes/ingresos';
 import { periodosRoutes } from './routes/periodos';
 import { presupuestosRoutes } from './routes/presupuestos';
 import { resumenRoutes } from './routes/resumen';
+import { transaccionesRoutes } from './routes/transacciones';
 import type { AppVariables, Env } from './types/env';
 
 const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
@@ -43,6 +44,7 @@ app.route('/ahorros', ahorrosRoutes);
 app.route('/ingresos', ingresosRoutes);
 app.route('/presupuestos', presupuestosRoutes);
 app.route('/resumen', resumenRoutes);
+app.route('/transacciones', transaccionesRoutes);
 
 app.notFound((c) => {
   return c.json({ error: 'Ruta no encontrada.' }, 404);

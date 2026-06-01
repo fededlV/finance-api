@@ -63,13 +63,39 @@ export const getOrCreatePeriodoActual = async (db: D1Database): Promise<Periodo>
     return existing;
   }
 
+  // Automated Rollover Logic
+  let dineroInicial = 0;
+  const lastPeriod = await db
+    .prepare(
+      `SELECT id, mes, anio, dinero_inicial, tipo_cambio_usd, creado_en
+       FROM periodos
+       ORDER BY anio DESC, mes DESC
+       LIMIT 1`,
+    )
+    .first<Periodo>();
+
+  if (lastPeriod) {
+    const lastPeriodId = lastPeriod.id;
+    const [ingresosResult, gastosResult, ahorrosResult] = await Promise.all([
+      db.prepare(`SELECT COALESCE(SUM(monto), 0) as total FROM ingresos WHERE periodo_id = ?`).bind(lastPeriodId).first<{ total: number }>(),
+      db.prepare(`SELECT COALESCE(SUM(monto), 0) as total FROM gastos WHERE periodo_id = ?`).bind(lastPeriodId).first<{ total: number }>(),
+      db.prepare(`SELECT COALESCE(SUM(monto), 0) as total FROM ahorros WHERE periodo_id = ? AND moneda = 'ARS'`).bind(lastPeriodId).first<{ total: number }>(),
+    ]);
+
+    const totalIngresos = ingresosResult?.total ?? 0;
+    const totalGastos = gastosResult?.total ?? 0;
+    const totalAhorrosArs = ahorrosResult?.total ?? 0;
+
+    dineroInicial = lastPeriod.dinero_inicial + totalIngresos - totalGastos - totalAhorrosArs;
+  }
+
   try {
     await db
       .prepare(
         `INSERT INTO periodos (mes, anio, dinero_inicial, tipo_cambio_usd)
-         VALUES (?, ?, 0, NULL)`,
+         VALUES (?, ?, ?, NULL)`,
       )
-      .bind(mes, anio)
+      .bind(mes, anio, dineroInicial)
       .run();
   } catch (error: unknown) {
     if (isUniqueConstraintError(error)) {
